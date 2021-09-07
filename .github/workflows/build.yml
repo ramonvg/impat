@@ -1,0 +1,42 @@
+name: "Build"
+
+on:
+  push:
+    branches: [main]
+
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    env:
+      CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}
+      CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
+      ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
+      ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.9.0
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9.0
+
+      - name: Install pip
+        run: pip install -r requirements.txt
+
+      - name: Fetch tweets
+        run: python main.py
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: main
+          commit_message: Automatic build
+          file_pattern: index.html impat.db
